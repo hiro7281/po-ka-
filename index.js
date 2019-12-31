@@ -46,16 +46,17 @@ var all = [1,1,4,5,
 			2,4,1,5,
 			1,2,3,3]
 
+
 io.on('connection', function(socket){
 	socket.on('login_req', (data) => {
 		socket.emit('login_res');
-		joiner.push(data.name);
+		joiner.push({name: data.name, id:socket.id});
 	})
 	socket.on('joiner_req', (data) => {
 		socket.emit('login_res', {data: joiner});
 	})
 	socket.on('start', (data) => {
-		var num = joiner.length;
+		var num = 3;
 		var extra = 0;
 		switch (num) {
 			case 3:
@@ -97,17 +98,40 @@ io.on('connection', function(socket){
 		}
 		console.log(cards);
 		console.log(remain);
-		var tefuda =	New Array<number>(num).fill(New Array<number>(12).fill(0));
-		var kubaru = cards.sum();
+		var tefuda = new Array(num);
+		for(var i = 0; i < num; i++){
+			tefuda[i] = new Array(12).fill(0);
+		}
+		var nokori = cards.reduce((a,x) => a+=x,0);
+		var nokori_li = [];
+		cards.forEach((card, index) => {
+			for(var i = 0; i< card; i++){
+				nokori_li.push(index);
+			}
+		})
+		var rand = 0, res = 0;
+		for(var i = 0; i < 4; i++){
+			for(var j=0; j<num; j++){
+				rand = Math.floor( Math.random() * nokori_li.length );
+				res = nokori_li[rand];
+				tefuda[j][res] = tefuda[j][res] + 1;
+				nokori--;
+				nokori_li.splice(res, 1);
+				cards[res]--;
+			}
+		}
+		var nokori = cards.reduce((a,x) => a+=x,0);
 		var li = [];
 		cards.forEach((card, index) => {
 			for(var i = 0; i< card; i++){
 				li.push(index);
 			}
 		})
-		var str = 
-		var li = ""
-		socket.emit('start_res', {joiner: joiner, });
+		console.log(tefuda);
+
+		for(var i = 0; i < num; i++){
+			io.to(joiner[i].id).emit("tefuda", {tefuda: tefuda[i]});
+		}
 	})
 })
 
