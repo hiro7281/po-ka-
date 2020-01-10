@@ -25,7 +25,7 @@ app.get('/robby', function(req, res){
 })
 
 const CARD={
-	"Daiich":0,
+	"Daiichi":0,
 	"Hannin":1,
 	"Tantei":2,
 	"Aribai":3,
@@ -50,7 +50,7 @@ var all = [1,1,4,5,
 io.on('connection', function(socket){
 	socket.on('login_req', (data) => {
 		socket.emit('login_res');
-		joiner.push({name: data.name, id:socket.id});
+		joiner.push({name: data.name, id:socket.id, turn: false});
 	})
 	socket.on('joiner_req', (data) => {
 		socket.emit('login_res', {data: joiner});
@@ -130,8 +130,15 @@ io.on('connection', function(socket){
 		console.log(tefuda);
 
 		for(var i = 0; i < num; i++){
-			io.to(joiner[i].id).emit("tefuda", {tefuda: tefuda[i]});
+			io.to(joiner[i].id).emit("tefuda", {tefuda: tefuda[i], num:i, joiner: joiner});
 		}
+	})
+
+	socket.on('daiichi', function(data){
+		var play = joiner.find(j => {
+			return j.turn
+		})
+		socket.emit('turn', {num: data.num});
 	})
 })
 
