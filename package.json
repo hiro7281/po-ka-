@@ -18,6 +18,6 @@
   "homepage": "https://github.com/hiro7281/po-ka-#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.4.0"
   }
 }
